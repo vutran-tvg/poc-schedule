@@ -318,12 +318,28 @@ const subtractMinutes = (timeStr: string, minutes: number): string => {
   return `${String(newHour).padStart(2, "0")}:${String(newMin).padStart(2, "0")}`;
 };
 
+// Helper function to check if any periods have invalid time ranges
+const hasInvalidPeriods = (serviceHours: ServiceHours): boolean => {
+  return DAY_ORDER.some(day => {
+    const periods = serviceHours[day]?.periods || [];
+    return periods.some(period => {
+      if (!period.startTime || !period.endTime) return false;
+      return period.endTime < period.startTime;
+    });
+  });
+};
+
 export const getBannerStatus = (
   serviceHours: ServiceHours,
   date: Date,
   kitchenBufferMinutes: number,
   lastOrderBufferMinutes: number,
 ): { status: "none" | "warning" | "stopped"; kitchenCloseTime?: string } => {
+  // Don't show banner if there are invalid periods
+  if (hasInvalidPeriods(serviceHours)) {
+    return { status: "none" };
+  }
+
   // Check if store is currently open
   const storeStatus = getStoreStatus(serviceHours, date);
   if (storeStatus === "closed") {

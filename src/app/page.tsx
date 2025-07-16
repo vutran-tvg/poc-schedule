@@ -49,7 +49,10 @@ export default function StoreScheduleDemo() {
               nextEvent={nextEvent}
             />
 
-            <WeeklySchedule displaySchedule={displaySchedule} />
+            <WeeklySchedule 
+              displaySchedule={displaySchedule}
+              serviceHours={serviceHours}
+            />
 
             <BufferSettings
               bufferSettings={bufferSettings}

@@ -5,7 +5,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { formatTimeForDisplay, getRelativeDayName } from "@/utils/time";
+import { formatTimeForFriendlyDisplay, getRelativeDayName } from "@/utils/time";
 
 interface CurrentStatusProps {
   storeStatus: "open" | "closed";
@@ -45,7 +45,7 @@ export const CurrentStatus = ({
         </div>
         {nextEvent ? (
           <p className="text-sm text-muted-foreground h-5">
-            {nextEvent.type} at {formatTimeForDisplay(nextEvent.time)}{" "}
+            {nextEvent.type} at {formatTimeForFriendlyDisplay(nextEvent.time)}{" "}
             {getRelativeDayName(currentTime, nextEvent.date)}
           </p>
         ) : (

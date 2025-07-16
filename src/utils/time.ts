@@ -2,6 +2,11 @@ import { DAY_ORDER, DAY_NAMES } from "@/constants/schedule";
 
 export const formatTimeForDisplay = (timeStr: string) => timeStr.substring(0, 5);
 
+export const formatTimeForFriendlyDisplay = (timeStr: string) => {
+  const time = timeStr.substring(0, 5);
+  return time === "23:59" ? "Midnight" : time;
+};
+
 export const getRelativeDayName = (currentDate: Date, eventDate: Date): string => {
   const current = new Date(
     currentDate.getFullYear(),

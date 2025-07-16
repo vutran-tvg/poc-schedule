@@ -1,6 +1,6 @@
 import { ServiceHours } from "@/types/schedule";
 import { DAY_ORDER } from "@/constants/schedule";
-import { formatTimeForDisplay } from "./time";
+import { formatTimeForDisplay, formatTimeForFriendlyDisplay } from "./time";
 
 export const getStoreStatus = (
   serviceHours: ServiceHours,
@@ -112,22 +112,22 @@ export const formatScheduleForDisplay = (
           if (overnightSpan === 2) {
             // Simple 2-day overnight: use "(Next day)" pattern
             dayStrings.push(
-              `${formatTimeForDisplay(period.startTime)} - ${formatTimeForDisplay(overnightContinuation.endTime)} (Next day)`,
+              `${formatTimeForFriendlyDisplay(period.startTime)} - ${formatTimeForFriendlyDisplay(overnightContinuation.endTime)} (Next day)`,
             );
           } else {
             // Multi-day span: show exact schedule for each day
             dayStrings.push(
-              `${formatTimeForDisplay(period.startTime)} - ${formatTimeForDisplay(period.endTime)}`,
+              `${formatTimeForFriendlyDisplay(period.startTime)} - ${formatTimeForFriendlyDisplay(period.endTime)}`,
             );
           }
         } else {
           dayStrings.push(
-            `${formatTimeForDisplay(period.startTime)} - ${formatTimeForDisplay(period.endTime)}`,
+            `${formatTimeForFriendlyDisplay(period.startTime)} - ${formatTimeForFriendlyDisplay(period.endTime)}`,
           );
         }
       } else {
         dayStrings.push(
-          `${formatTimeForDisplay(period.startTime)} - ${formatTimeForDisplay(period.endTime)}`,
+          `${formatTimeForFriendlyDisplay(period.startTime)} - ${formatTimeForFriendlyDisplay(period.endTime)}`,
         );
       }
     });

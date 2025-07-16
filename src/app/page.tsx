@@ -2,7 +2,7 @@
 
 import { useCurrentTime } from "@/hooks/useCurrentTime";
 import { useSchedule } from "@/hooks/useSchedule";
-import { ScheduleEditor, CurrentStatus, WeeklySchedule } from "@/components/schedule";
+import { ScheduleEditor, CurrentStatus, WeeklySchedule, BufferSettings, OrderBanner } from "@/components/schedule";
 
 export default function StoreScheduleDemo() {
   const currentTime = useCurrentTime();
@@ -14,6 +14,10 @@ export default function StoreScheduleDemo() {
     handleTimeChange,
     addPeriod,
     removePeriod,
+    bufferSettings,
+    setBufferSettings,
+    bannerStatus,
+    bannerMessage,
   } = useSchedule(currentTime);
 
   return (
@@ -46,6 +50,16 @@ export default function StoreScheduleDemo() {
             />
 
             <WeeklySchedule displaySchedule={displaySchedule} />
+
+            <BufferSettings
+              bufferSettings={bufferSettings}
+              onBufferChange={setBufferSettings}
+            />
+
+            <OrderBanner
+              status={bannerStatus}
+              message={bannerMessage}
+            />
           </div>
         </div>
       </div>

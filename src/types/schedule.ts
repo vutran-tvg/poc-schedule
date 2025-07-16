@@ -9,4 +9,11 @@ export type DaySchedule = {
 
 export type ServiceHours = {
   [key: string]: DaySchedule;
-}; 
+};
+
+export type BufferSettings = {
+  kitchenBufferMinutes: number;
+  lastOrderBufferMinutes: number;
+};
+
+export type BannerStatus = "none" | "warning" | "stopped"; 

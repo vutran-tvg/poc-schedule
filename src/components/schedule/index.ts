@@ -4,4 +4,5 @@ export { ScheduleEditor } from "./ScheduleEditor";
 export { CurrentStatus } from "./CurrentStatus";
 export { WeeklySchedule } from "./WeeklySchedule";
 export { BufferSettings } from "./BufferSettings";
-export { OrderBanner } from "./OrderBanner"; 
+export { OrderBanner } from "./OrderBanner";
+export { TimeSettings } from "./TimeSettings"; 

@@ -1,11 +1,31 @@
 "use client";
 
+import { useState } from "react";
 import { useCurrentTime } from "@/hooks/useCurrentTime";
 import { useSchedule } from "@/hooks/useSchedule";
-import { ScheduleEditor, CurrentStatus, WeeklySchedule, BufferSettings, OrderBanner } from "@/components/schedule";
+import { ScheduleEditor, CurrentStatus, WeeklySchedule, BufferSettings, OrderBanner, TimeSettings } from "@/components/schedule";
+
+// Helper function to create Date object from manual time string
+const createManualTimeDate = (timeString: string, referenceDate: Date): Date => {
+  const [hours, minutes] = timeString.split(':').map(Number);
+  const manualDate = new Date(referenceDate);
+  manualDate.setHours(hours, minutes, 0, 0);
+  return manualDate;
+};
 
 export default function StoreScheduleDemo() {
-  const currentTime = useCurrentTime();
+  // Time control state
+  const [isUsingCurrentTime, setIsUsingCurrentTime] = useState(true);
+  const [manualTime, setManualTime] = useState("12:00");
+  
+  // Get real current time
+  const realCurrentTime = useCurrentTime();
+  
+  // Calculate effective time based on user preference
+  const effectiveTime = isUsingCurrentTime 
+    ? realCurrentTime 
+    : createManualTimeDate(manualTime, realCurrentTime);
+
   const {
     serviceHours,
     storeStatus,
@@ -18,7 +38,7 @@ export default function StoreScheduleDemo() {
     setBufferSettings,
     bannerStatus,
     bannerMessage,
-  } = useSchedule(currentTime);
+  } = useSchedule(effectiveTime);
 
   return (
     <div className="bg-background text-foreground min-h-screen p-4 sm:p-6 md:p-8">
@@ -33,7 +53,15 @@ export default function StoreScheduleDemo() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 space-y-8">
+            <TimeSettings
+              useCurrentTime={isUsingCurrentTime}
+              manualTime={manualTime}
+              onToggleCurrentTime={setIsUsingCurrentTime}
+              onManualTimeChange={setManualTime}
+              currentTime={effectiveTime}
+            />
+
             <ScheduleEditor
               serviceHours={serviceHours}
               onTimeChange={handleTimeChange}
@@ -45,7 +73,7 @@ export default function StoreScheduleDemo() {
           <div className="space-y-8">
             <CurrentStatus
               storeStatus={storeStatus}
-              currentTime={currentTime}
+              currentTime={effectiveTime}
               nextEvent={nextEvent}
             />
 

@@ -75,6 +75,8 @@ export const TimeSettings = ({
               value={manualTime}
               onChange={(e) => onManualTimeChange(e.target.value)}
               disabled={useCurrentTime}
+              step="60"
+              lang="en-GB"
               className={`px-3 py-2 text-sm border rounded-md bg-background border-border 
                 ${useCurrentTime 
                   ? 'opacity-50 cursor-not-allowed' 

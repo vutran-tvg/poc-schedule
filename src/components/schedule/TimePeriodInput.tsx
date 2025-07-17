@@ -26,6 +26,8 @@ export const TimePeriodInput = ({
         value={formatTimeForDisplay(period.startTime)}
         onChange={(e) => onTimeChange(day, index, "startTime", e.target.value)}
         className="w-full"
+        step="60"
+        lang="en-GB"
       />
       <span className="text-muted-foreground">-</span>
       <Input
@@ -33,6 +35,8 @@ export const TimePeriodInput = ({
         value={formatTimeForDisplay(period.endTime)}
         onChange={(e) => onTimeChange(day, index, "endTime", e.target.value)}
         className="w-full"
+        step="60"
+        lang="en-GB"
       />
       <Button
         variant="ghost"

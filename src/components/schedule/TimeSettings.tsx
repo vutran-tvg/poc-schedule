@@ -1,15 +1,19 @@
 interface TimeSettingsProps {
   useCurrentTime: boolean;
+  manualDate: string;
   manualTime: string;
   onToggleCurrentTime: (useCurrentTime: boolean) => void;
+  onManualDateChange: (date: string) => void;
   onManualTimeChange: (time: string) => void;
   currentTime: Date;
 }
 
 export const TimeSettings = ({
   useCurrentTime,
+  manualDate,
   manualTime,
   onToggleCurrentTime,
+  onManualDateChange,
   onManualTimeChange,
   currentTime,
 }: TimeSettingsProps) => {
@@ -50,21 +54,34 @@ export const TimeSettings = ({
               className="w-4 h-4 text-primary bg-background border-border rounded focus:ring-primary focus:ring-2"
             />
             <label htmlFor="useManualTime" className="text-sm font-medium">
-              Manual time for testing:
+              Manual date & time for testing:
             </label>
           </div>
           
-          <input
-            type="time"
-            value={manualTime}
-            onChange={(e) => onManualTimeChange(e.target.value)}
-            disabled={useCurrentTime}
-            className={`w-full px-3 py-2 text-sm border rounded-md bg-background border-border 
-              ${useCurrentTime 
-                ? 'opacity-50 cursor-not-allowed' 
-                : 'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent'
-              }`}
-          />
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              type="date"
+              value={manualDate}
+              onChange={(e) => onManualDateChange(e.target.value)}
+              disabled={useCurrentTime}
+              className={`px-3 py-2 text-sm border rounded-md bg-background border-border 
+                ${useCurrentTime 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : 'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent'
+                }`}
+            />
+            <input
+              type="time"
+              value={manualTime}
+              onChange={(e) => onManualTimeChange(e.target.value)}
+              disabled={useCurrentTime}
+              className={`px-3 py-2 text-sm border rounded-md bg-background border-border 
+                ${useCurrentTime 
+                  ? 'opacity-50 cursor-not-allowed' 
+                  : 'focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent'
+                }`}
+            />
+          </div>
         </div>
 
         <div className="pt-2 border-t border-border">

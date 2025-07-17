@@ -5,10 +5,10 @@ import { useCurrentTime } from "@/hooks/useCurrentTime";
 import { useSchedule } from "@/hooks/useSchedule";
 import { ScheduleEditor, CurrentStatus, WeeklySchedule, BufferSettings, OrderBanner, TimeSettings } from "@/components/schedule";
 
-// Helper function to create Date object from manual time string
-const createManualTimeDate = (timeString: string, referenceDate: Date): Date => {
+// Helper function to create Date object from manual date and time strings
+const createManualDateTime = (dateString: string, timeString: string): Date => {
   const [hours, minutes] = timeString.split(':').map(Number);
-  const manualDate = new Date(referenceDate);
+  const manualDate = new Date(dateString + 'T00:00:00');
   manualDate.setHours(hours, minutes, 0, 0);
   return manualDate;
 };
@@ -16,6 +16,10 @@ const createManualTimeDate = (timeString: string, referenceDate: Date): Date => 
 export default function StoreScheduleDemo() {
   // Time control state
   const [isUsingCurrentTime, setIsUsingCurrentTime] = useState(true);
+  const [manualDate, setManualDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0]; // YYYY-MM-DD format
+  });
   const [manualTime, setManualTime] = useState("12:00");
   
   // Get real current time
@@ -24,7 +28,7 @@ export default function StoreScheduleDemo() {
   // Calculate effective time based on user preference
   const effectiveTime = isUsingCurrentTime 
     ? realCurrentTime 
-    : createManualTimeDate(manualTime, realCurrentTime);
+    : createManualDateTime(manualDate, manualTime);
 
   const {
     serviceHours,
@@ -56,8 +60,10 @@ export default function StoreScheduleDemo() {
           <div className="lg:col-span-2 space-y-8">
             <TimeSettings
               useCurrentTime={isUsingCurrentTime}
+              manualDate={manualDate}
               manualTime={manualTime}
               onToggleCurrentTime={setIsUsingCurrentTime}
+              onManualDateChange={setManualDate}
               onManualTimeChange={setManualTime}
               currentTime={effectiveTime}
             />

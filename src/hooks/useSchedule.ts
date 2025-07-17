@@ -50,6 +50,7 @@ export const useSchedule = (currentTime: Date) => {
         ? formatBannerMessage(
             bannerStatus.status,
             bannerStatus.kitchenCloseTime || "",
+            bannerStatus.displayKitchenCloseTime,
           )
         : "",
     [bannerStatus],

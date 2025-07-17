@@ -62,7 +62,7 @@ export const BufferSettings = ({
           </div>
           <div className="space-y-2">
             <label htmlFor="order-buffer" className="text-sm font-medium">
-              Last Order Reminder
+              Order Reminder
             </label>
             <Input
               id="order-buffer"

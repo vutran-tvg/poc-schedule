@@ -292,7 +292,7 @@ export const getBannerStatus = (
   date: Date,
   kitchenBufferMinutes: number,
   lastOrderBufferMinutes: number,
-): { status: "none" | "warning" | "stopped"; kitchenCloseTime?: string } => {
+): { status: "none" | "warning" | "stopped"; kitchenCloseTime?: string; displayKitchenCloseTime?: string } => {
   // Don't show banner if there are invalid periods
   if (hasInvalidPeriods(serviceHours)) {
     return { status: "none" };
@@ -320,6 +320,12 @@ export const getBannerStatus = (
   // Calculate kitchen close time
   const kitchenCloseTime = subtractMinutes(realEndTime, kitchenBufferMinutes);
 
+  // Special case: when store closes at midnight, round kitchen time to 23:30 for display
+  let displayKitchenCloseTime = kitchenCloseTime;
+  if (realEndTime === "23:59:00" && kitchenCloseTime === "23:29") {
+    displayKitchenCloseTime = "23:30";
+  }
+
   // Calculate warning start time
   const warningStartTime = subtractMinutes(
     kitchenCloseTime,
@@ -345,11 +351,11 @@ export const getBannerStatus = (
   );
 
   if (minutesToWarning <= 0 && minutesToKitchenClose > 0) {
-    return { status: "warning", kitchenCloseTime };
+    return { status: "warning", kitchenCloseTime, displayKitchenCloseTime };
   }
 
   if (minutesToKitchenClose <= 0) {
-    return { status: "stopped", kitchenCloseTime };
+    return { status: "stopped", kitchenCloseTime, displayKitchenCloseTime };
   }
 
   return { status: "none" };
@@ -358,9 +364,11 @@ export const getBannerStatus = (
 export const formatBannerMessage = (
   status: "warning" | "stopped",
   kitchenCloseTime: string,
+  displayKitchenCloseTime?: string,
 ): string => {
   if (status === "warning") {
-    return `Heads up, last order by ${formatTimeForFriendlyDisplay(kitchenCloseTime + ":00")}`;
+    const timeToDisplay = displayKitchenCloseTime || kitchenCloseTime;
+    return `Heads up, last order by ${formatTimeForFriendlyDisplay(timeToDisplay + ":00")}`;
   }
 
   if (status === "stopped") {

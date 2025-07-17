@@ -88,7 +88,7 @@ export const TimeSettings = ({
           <div className="text-sm text-muted-foreground">
             Current effective time:
           </div>
-          <div className="text-lg font-mono font-medium">
+          <div className="text-lg font-mono font-medium" suppressHydrationWarning>
             {formatDisplayTime(currentTime)}
           </div>
           <div className="text-xs text-muted-foreground">

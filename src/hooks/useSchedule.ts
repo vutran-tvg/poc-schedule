@@ -1,10 +1,18 @@
 import { useState, useMemo } from "react";
-import { ServiceHours, TimePeriod, BufferSettings } from "@/types/schedule";
+import { ServiceHours, BufferSettings } from "@/types/schedule";
 import { INITIAL_SERVICE_HOURS } from "@/constants/schedule";
-import { getStoreStatus, formatScheduleForDisplay, getNextEvent, getBannerStatus, formatBannerMessage } from "@/utils/schedule";
+import {
+  getStoreStatus,
+  formatScheduleForDisplay,
+  getNextEvent,
+  getBannerStatus,
+  formatBannerMessage,
+} from "@/utils/schedule";
 
 export const useSchedule = (currentTime: Date) => {
-  const [serviceHours, setServiceHours] = useState<ServiceHours>(INITIAL_SERVICE_HOURS);
+  const [serviceHours, setServiceHours] = useState<ServiceHours>(
+    INITIAL_SERVICE_HOURS,
+  );
   const [bufferSettings, setBufferSettings] = useState<BufferSettings>({
     kitchenBufferMinutes: 30,
     lastOrderBufferMinutes: 20,
@@ -26,19 +34,24 @@ export const useSchedule = (currentTime: Date) => {
   );
 
   const bannerStatus = useMemo(
-    () => getBannerStatus(
-      serviceHours,
-      currentTime,
-      bufferSettings.kitchenBufferMinutes,
-      bufferSettings.lastOrderBufferMinutes,
-    ),
+    () =>
+      getBannerStatus(
+        serviceHours,
+        currentTime,
+        bufferSettings.kitchenBufferMinutes,
+        bufferSettings.lastOrderBufferMinutes,
+      ),
     [serviceHours, currentTime, bufferSettings],
   );
 
   const bannerMessage = useMemo(
-    () => bannerStatus.status !== "none" 
-      ? formatBannerMessage(bannerStatus.status, bannerStatus.kitchenCloseTime || "")
-      : "",
+    () =>
+      bannerStatus.status !== "none"
+        ? formatBannerMessage(
+            bannerStatus.status,
+            bannerStatus.kitchenCloseTime || "",
+          )
+        : "",
     [bannerStatus],
   );
 
@@ -80,4 +93,4 @@ export const useSchedule = (currentTime: Date) => {
     bannerStatus: bannerStatus.status,
     bannerMessage,
   };
-}; 
+};

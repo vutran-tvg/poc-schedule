@@ -1,6 +1,6 @@
 import { ServiceHours } from "@/types/schedule";
 import { DAY_ORDER } from "@/constants/schedule";
-import { formatTimeForDisplay, formatTimeForFriendlyDisplay } from "./time";
+import { formatTimeForFriendlyDisplay } from "./time";
 
 export const getStoreStatus = (
   serviceHours: ServiceHours,
@@ -42,7 +42,7 @@ const getContinuousOvernightSpan = (
   startDayIndex: number,
 ): number => {
   let spanLength = 1;
-  let currentIndex = startDayIndex;
+  const currentIndex = startDayIndex;
 
   // Check if current day ends at 23:59
   const currentDayKey = DAY_ORDER[currentIndex];
@@ -58,13 +58,17 @@ const getContinuousOvernightSpan = (
     const nextDayPeriods = serviceHours[nextDayKey]?.periods || [];
 
     // Check if next day starts at 00:00
-    const startsFromMidnight = nextDayPeriods.some((p) => p.startTime === "00:00:00");
+    const startsFromMidnight = nextDayPeriods.some(
+      (p) => p.startTime === "00:00:00",
+    );
     if (!startsFromMidnight) break;
 
     spanLength++;
 
     // Check if this day also ends at 23:59 (continues further)
-    const nextEndsOvernight = nextDayPeriods.some((p) => p.endTime === "23:59:00");
+    const nextEndsOvernight = nextDayPeriods.some(
+      (p) => p.endTime === "23:59:00",
+    );
     if (!nextEndsOvernight) break;
   }
 
@@ -108,7 +112,7 @@ export const formatScheduleForDisplay = (
         if (overnightContinuation) {
           // Check if this is a simple 2-day overnight or multi-day span
           const overnightSpan = getContinuousOvernightSpan(serviceHours, index);
-          
+
           if (overnightSpan === 2) {
             // Simple 2-day overnight: use "(Next day)" pattern
             dayStrings.push(
@@ -223,13 +227,16 @@ export const getNextEvent = (
   }
 
   return null;
-}; 
+};
 
 // Helper function to find the current operating period
 const getCurrentOperatingPeriod = (
   serviceHours: ServiceHours,
   date: Date,
-): { period: { startTime: string; endTime: string } | null; dayIndex: number } => {
+): {
+  period: { startTime: string; endTime: string } | null;
+  dayIndex: number;
+} => {
   const currentDayIndex = date.getDay();
   const currentDayKey = DAY_ORDER[currentDayIndex];
   const prevDayIndex = (currentDayIndex - 1 + 7) % 7;
@@ -246,10 +253,14 @@ const getCurrentOperatingPeriod = (
 
   // Check if we're in an overnight period from previous day
   const prevDayPeriods = serviceHours[prevDayKey]?.periods || [];
-  const isOvernightFromPrev = prevDayPeriods.some((p) => p.endTime === "23:59:00");
+  const isOvernightFromPrev = prevDayPeriods.some(
+    (p) => p.endTime === "23:59:00",
+  );
 
   if (isOvernightFromPrev) {
-    const continuationPeriod = currentDayPeriods.find((p) => p.startTime === "00:00:00");
+    const continuationPeriod = currentDayPeriods.find(
+      (p) => p.startTime === "00:00:00",
+    );
     if (continuationPeriod && currentTime <= continuationPeriod.endTime) {
       return { period: continuationPeriod, dayIndex: currentDayIndex };
     }
@@ -274,7 +285,9 @@ const findRealEndTime = (
     const nextDayPeriods = serviceHours[nextDayKey]?.periods || [];
 
     // Check if next day starts at 00:00 (continuous)
-    const continuesPeriod = nextDayPeriods.find((p) => p.startTime === "00:00:00");
+    const continuesPeriod = nextDayPeriods.find(
+      (p) => p.startTime === "00:00:00",
+    );
 
     if (!continuesPeriod) {
       // Next day doesn't start at 00:00 → current 23:59 is real end
@@ -290,7 +303,10 @@ const findRealEndTime = (
 };
 
 // Helper function to calculate minutes difference between two times
-const getMinutesDifference = (currentTime: string, targetTime: string): number => {
+const getMinutesDifference = (
+  currentTime: string,
+  targetTime: string,
+): number => {
   const [currentHour, currentMin] = currentTime.split(":").map(Number);
   const [targetHour, targetMin] = targetTime.split(":").map(Number);
 
@@ -320,9 +336,9 @@ const subtractMinutes = (timeStr: string, minutes: number): string => {
 
 // Helper function to check if any periods have invalid time ranges
 const hasInvalidPeriods = (serviceHours: ServiceHours): boolean => {
-  return DAY_ORDER.some(day => {
+  return DAY_ORDER.some((day) => {
     const periods = serviceHours[day]?.periods || [];
-    return periods.some(period => {
+    return periods.some((period) => {
       if (!period.startTime || !period.endTime) return false;
       return period.endTime < period.startTime;
     });
@@ -359,13 +375,19 @@ export const getBannerStatus = (
   const kitchenCloseTime = subtractMinutes(realEndTime, kitchenBufferMinutes);
 
   // Calculate warning start time
-  const warningStartTime = subtractMinutes(kitchenCloseTime, lastOrderBufferMinutes);
+  const warningStartTime = subtractMinutes(
+    kitchenCloseTime,
+    lastOrderBufferMinutes,
+  );
 
   const currentTime = date.toTimeString().split(" ")[0];
 
   // Check if we're in warning period
   const minutesToWarning = getMinutesDifference(currentTime, warningStartTime);
-  const minutesToKitchenClose = getMinutesDifference(currentTime, kitchenCloseTime);
+  const minutesToKitchenClose = getMinutesDifference(
+    currentTime,
+    kitchenCloseTime,
+  );
 
   if (minutesToWarning <= 0 && minutesToKitchenClose > 0) {
     return { status: "warning", kitchenCloseTime };
@@ -385,10 +407,10 @@ export const formatBannerMessage = (
   if (status === "warning") {
     return `Heads up, last order by ${formatTimeForFriendlyDisplay(kitchenCloseTime + ":00")}`;
   }
-  
+
   if (status === "stopped") {
     return "This store has stopped accepting orders.";
   }
 
   return "";
-}; 
+};

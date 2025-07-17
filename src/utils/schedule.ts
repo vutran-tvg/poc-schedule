@@ -112,14 +112,17 @@ export const formatScheduleForDisplay = (
         if (overnightContinuation) {
           // Check if this is a simple 2-day overnight or multi-day span
           const overnightSpan = getContinuousOvernightSpan(serviceHours, index);
+          
+          // Check if continuation day is a full day (00:00-23:59)
+          const isFullDayContinuation = overnightContinuation.endTime === "23:59:00";
 
-          if (overnightSpan === 2) {
-            // Simple 2-day overnight: use "(Next day)" pattern
+          if (overnightSpan === 2 && !isFullDayContinuation) {
+            // Simple 2-day overnight with partial continuation: use "(Next day)" pattern
             dayStrings.push(
               `${formatTimeForFriendlyDisplay(period.startTime)} - ${formatTimeForFriendlyDisplay(overnightContinuation.endTime)} (Next day)`,
             );
           } else {
-            // Multi-day span: show exact schedule for each day
+            // Multi-day span OR full-day continuation: show exact schedule for each day
             dayStrings.push(
               `${formatTimeForFriendlyDisplay(period.startTime)} - ${formatTimeForFriendlyDisplay(period.endTime)}`,
             );
@@ -152,36 +155,30 @@ export const getNextEvent = (
   const currentTime = currentDate.toTimeString().split(" ")[0];
 
   if (status === "open") {
-    const currentDayKey = DAY_ORDER[currentDayIndex];
-    const currentDayPeriods =
-      serviceHours[currentDayKey]?.periods.sort((a, b) =>
-        a.startTime.localeCompare(b.startTime),
-      ) || [];
-    for (const period of currentDayPeriods) {
-      if (currentTime >= period.startTime && currentTime <= period.endTime) {
-        return { type: "Closes", time: period.endTime, date: currentDate };
-      }
+    // Get current operating period using the same logic as banner system
+    const { period, dayIndex } = getCurrentOperatingPeriod(serviceHours, currentDate);
+    if (!period) {
+      return null;
     }
 
-    const prevDayIndex = (currentDayIndex - 1 + 7) % 7;
-    const prevDayKey = DAY_ORDER[prevDayIndex];
-    const isOvernightFromPrev = (serviceHours[prevDayKey]?.periods || []).some(
-      (p) => p.endTime === "23:59:00",
-    );
+    // Find the real end time (following continuous chains)
+    const { realEndTime, endDayIndex } = findRealEndTime(serviceHours, dayIndex, period);
 
-    if (isOvernightFromPrev) {
-      const continuationPeriod = currentDayPeriods.find(
-        (p) => p.startTime === "00:00:00",
-      );
-      if (continuationPeriod && currentTime <= continuationPeriod.endTime) {
-        return {
-          type: "Closes",
-          time: continuationPeriod.endTime,
-          date: currentDate,
-        };
-      }
+    // Calculate the appropriate date for the closing time
+    let closingDate = new Date(currentDate);
+    if (endDayIndex !== currentDayIndex) {
+      // Closing time is on a different day
+      const dayDifference = endDayIndex - currentDayIndex;
+      // Handle week wrap-around (e.g., Sunday=0, Monday=1, ..., Saturday=6)
+      const adjustedDifference = dayDifference > 0 ? dayDifference : dayDifference + 7;
+      closingDate.setDate(currentDate.getDate() + adjustedDifference);
     }
-    return null;
+
+    return {
+      type: "Closes",
+      time: realEndTime,
+      date: closingDate,
+    };
   }
 
   if (status === "closed") {

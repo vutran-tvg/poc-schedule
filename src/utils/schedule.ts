@@ -79,7 +79,7 @@ export const formatScheduleForDisplay = (
 export const getNextEvent = (
   serviceHours: ServiceHours,
   currentDate: Date,
-): { type: "Opens" | "Closes"; time: string; date: Date } | null => {
+): { type: "Opens" | "Closes" | "Open"; time: string; date: Date } | null => {
   const status = getStoreStatus(serviceHours, currentDate);
   const currentDayIndex = currentDate.getDay();
   const currentTime = currentDate.toTimeString().split(" ")[0];
@@ -100,6 +100,15 @@ export const getNextEvent = (
       dayIndex,
       period,
     );
+
+    // Special case: 24/7 operations never close
+    if (realEndTime === "24/7") {
+      return {
+        type: "Open",
+        time: "24/7",
+        date: currentDate,
+      };
+    }
 
     // Calculate the appropriate date for the closing time
     const closingDate = new Date(currentDate);
@@ -212,9 +221,11 @@ const findRealEndTime = (
 ): { realEndTime: string; endDayIndex: number } => {
   let endTime = startPeriod.endTime;
   let dayIndex = startDayIndex;
+  let loopCount = 0;
+  const MAX_DAYS = 7;
 
   // Keep following the chain while periods are continuous
-  while (endTime === "23:59:00") {
+  while (endTime === "23:59:00" && loopCount < MAX_DAYS) {
     const nextDayIndex = (dayIndex + 1) % 7;
     const nextDayKey = DAY_ORDER[nextDayIndex];
     const nextDayPeriods = serviceHours[nextDayKey]?.periods || [];
@@ -232,6 +243,12 @@ const findRealEndTime = (
     // Continue to next period
     endTime = continuesPeriod.endTime;
     dayIndex = nextDayIndex;
+    loopCount++;
+
+    // If we've come full circle, it's 24/7 operation
+    if (nextDayIndex === startDayIndex) {
+      return { realEndTime: "24/7", endDayIndex: startDayIndex };
+    }
   }
 
   return { realEndTime: endTime, endDayIndex: dayIndex };
@@ -316,6 +333,11 @@ export const getBannerStatus = (
     dayIndex,
     period,
   );
+
+  // Special case: truly 24/7 operations should not show banners
+  if (realEndTime === "24/7") {
+    return { status: "none" };
+  }
 
   // Calculate kitchen close time
   const kitchenCloseTime = subtractMinutes(realEndTime, kitchenBufferMinutes);

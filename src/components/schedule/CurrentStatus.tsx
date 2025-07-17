@@ -10,7 +10,7 @@ import { formatTimeForFriendlyDisplay, getRelativeDayName } from "@/utils/time";
 interface CurrentStatusProps {
   storeStatus: "open" | "closed";
   currentTime: Date;
-  nextEvent: { type: "Opens" | "Closes"; time: string; date: Date } | null;
+  nextEvent: { type: "Opens" | "Closes" | "Open"; time: string; date: Date } | null;
 }
 
 export const CurrentStatus = ({
@@ -45,8 +45,10 @@ export const CurrentStatus = ({
         </div>
         {nextEvent ? (
           <p className="text-sm text-muted-foreground h-5">
-            {nextEvent.type} at {formatTimeForFriendlyDisplay(nextEvent.time)}{" "}
-            {getRelativeDayName(currentTime, nextEvent.date)}
+            {nextEvent.type === "Open" && nextEvent.time === "24/7" 
+              ? "Open 24/7"
+              : `${nextEvent.type} at ${formatTimeForFriendlyDisplay(nextEvent.time)} ${getRelativeDayName(currentTime, nextEvent.date)}`
+            }
           </p>
         ) : (
           <p className="text-sm text-muted-foreground h-5">

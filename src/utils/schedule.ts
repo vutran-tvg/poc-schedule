@@ -112,9 +112,10 @@ export const formatScheduleForDisplay = (
         if (overnightContinuation) {
           // Check if this is a simple 2-day overnight or multi-day span
           const overnightSpan = getContinuousOvernightSpan(serviceHours, index);
-          
+
           // Check if continuation day is a full day (00:00-23:59)
-          const isFullDayContinuation = overnightContinuation.endTime === "23:59:00";
+          const isFullDayContinuation =
+            overnightContinuation.endTime === "23:59:00";
 
           if (overnightSpan === 2 && !isFullDayContinuation) {
             // Simple 2-day overnight with partial continuation: use "(Next day)" pattern
@@ -156,21 +157,29 @@ export const getNextEvent = (
 
   if (status === "open") {
     // Get current operating period using the same logic as banner system
-    const { period, dayIndex } = getCurrentOperatingPeriod(serviceHours, currentDate);
+    const { period, dayIndex } = getCurrentOperatingPeriod(
+      serviceHours,
+      currentDate,
+    );
     if (!period) {
       return null;
     }
 
     // Find the real end time (following continuous chains)
-    const { realEndTime, endDayIndex } = findRealEndTime(serviceHours, dayIndex, period);
+    const { realEndTime, endDayIndex } = findRealEndTime(
+      serviceHours,
+      dayIndex,
+      period,
+    );
 
     // Calculate the appropriate date for the closing time
-    let closingDate = new Date(currentDate);
+    const closingDate = new Date(currentDate);
     if (endDayIndex !== currentDayIndex) {
       // Closing time is on a different day
       const dayDifference = endDayIndex - currentDayIndex;
       // Handle week wrap-around (e.g., Sunday=0, Monday=1, ..., Saturday=6)
-      const adjustedDifference = dayDifference > 0 ? dayDifference : dayDifference + 7;
+      const adjustedDifference =
+        dayDifference > 0 ? dayDifference : dayDifference + 7;
       closingDate.setDate(currentDate.getDate() + adjustedDifference);
     }
 
@@ -373,7 +382,11 @@ export const getBannerStatus = (
   }
 
   // Find the real end time
-  const { realEndTime, endDayIndex } = findRealEndTime(serviceHours, dayIndex, period);
+  const { realEndTime, endDayIndex } = findRealEndTime(
+    serviceHours,
+    dayIndex,
+    period,
+  );
 
   // Calculate kitchen close time
   const kitchenCloseTime = subtractMinutes(realEndTime, kitchenBufferMinutes);
@@ -391,7 +404,11 @@ export const getBannerStatus = (
   const kitchenIsNextDay = endDayIndex !== currentDayIndex;
 
   // Check if we're in warning period
-  const minutesToWarning = getMinutesDifference(currentTime, warningStartTime, kitchenIsNextDay);
+  const minutesToWarning = getMinutesDifference(
+    currentTime,
+    warningStartTime,
+    kitchenIsNextDay,
+  );
   const minutesToKitchenClose = getMinutesDifference(
     currentTime,
     kitchenCloseTime,

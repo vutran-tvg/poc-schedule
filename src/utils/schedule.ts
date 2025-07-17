@@ -303,15 +303,22 @@ const findRealEndTime = (
 };
 
 // Helper function to calculate minutes difference between two times
+// Returns positive if target is in the future, negative if in the past
 const getMinutesDifference = (
   currentTime: string,
   targetTime: string,
+  targetIsNextDay: boolean = false,
 ): number => {
   const [currentHour, currentMin] = currentTime.split(":").map(Number);
   const [targetHour, targetMin] = targetTime.split(":").map(Number);
 
   const currentMinutes = currentHour * 60 + currentMin;
-  const targetMinutes = targetHour * 60 + targetMin;
+  let targetMinutes = targetHour * 60 + targetMin;
+
+  // If target is next day, add 24 hours worth of minutes
+  if (targetIsNextDay) {
+    targetMinutes += 24 * 60;
+  }
 
   return targetMinutes - currentMinutes;
 };
@@ -369,7 +376,7 @@ export const getBannerStatus = (
   }
 
   // Find the real end time
-  const { realEndTime } = findRealEndTime(serviceHours, dayIndex, period);
+  const { realEndTime, endDayIndex } = findRealEndTime(serviceHours, dayIndex, period);
 
   // Calculate kitchen close time
   const kitchenCloseTime = subtractMinutes(realEndTime, kitchenBufferMinutes);
@@ -381,12 +388,17 @@ export const getBannerStatus = (
   );
 
   const currentTime = date.toTimeString().split(" ")[0];
+  const currentDayIndex = date.getDay();
+
+  // Determine if kitchen times are on a different day
+  const kitchenIsNextDay = endDayIndex !== currentDayIndex;
 
   // Check if we're in warning period
-  const minutesToWarning = getMinutesDifference(currentTime, warningStartTime);
+  const minutesToWarning = getMinutesDifference(currentTime, warningStartTime, kitchenIsNextDay);
   const minutesToKitchenClose = getMinutesDifference(
     currentTime,
     kitchenCloseTime,
+    kitchenIsNextDay,
   );
 
   if (minutesToWarning <= 0 && minutesToKitchenClose > 0) {

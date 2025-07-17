@@ -36,51 +36,12 @@ export const getStoreStatus = (
   return "closed";
 };
 
-// Helper function to detect continuous overnight span length
-const getContinuousOvernightSpan = (
-  serviceHours: ServiceHours,
-  startDayIndex: number,
-): number => {
-  let spanLength = 1;
-  const currentIndex = startDayIndex;
-
-  // Check if current day ends at 23:59
-  const currentDayKey = DAY_ORDER[currentIndex];
-  const currentDayPeriods = serviceHours[currentDayKey]?.periods || [];
-  const endsOvernight = currentDayPeriods.some((p) => p.endTime === "23:59:00");
-
-  if (!endsOvernight) return 1;
-
-  // Look ahead to find the full span
-  for (let i = 1; i < 7; i++) {
-    const nextIndex = (currentIndex + i) % 7;
-    const nextDayKey = DAY_ORDER[nextIndex];
-    const nextDayPeriods = serviceHours[nextDayKey]?.periods || [];
-
-    // Check if next day starts at 00:00
-    const startsFromMidnight = nextDayPeriods.some(
-      (p) => p.startTime === "00:00:00",
-    );
-    if (!startsFromMidnight) break;
-
-    spanLength++;
-
-    // Check if this day also ends at 23:59 (continues further)
-    const nextEndsOvernight = nextDayPeriods.some(
-      (p) => p.endTime === "23:59:00",
-    );
-    if (!nextEndsOvernight) break;
-  }
-
-  return spanLength;
-};
-
 export const formatScheduleForDisplay = (
   serviceHours: ServiceHours,
 ): { [key: string]: string } => {
   const displayData: { [key: string]: string } = {};
 
-  DAY_ORDER.forEach((dayKey, index) => {
+  DAY_ORDER.forEach((dayKey) => {
     const dayPeriods =
       serviceHours[dayKey]?.periods
         .filter((p) => p.startTime && p.endTime)
@@ -101,43 +62,11 @@ export const formatScheduleForDisplay = (
     }
 
     const dayStrings: string[] = [];
-    const nextDayKey = DAY_ORDER[(index + 1) % 7];
-    const nextDayPeriods = serviceHours[nextDayKey]?.periods || [];
 
     dayPeriods.forEach((period) => {
-      if (period.endTime === "23:59:00") {
-        const overnightContinuation = nextDayPeriods.find(
-          (p) => p.startTime === "00:00:00",
-        );
-        if (overnightContinuation) {
-          // Check if this is a simple 2-day overnight or multi-day span
-          const overnightSpan = getContinuousOvernightSpan(serviceHours, index);
-
-          // Check if continuation day is a full day (00:00-23:59)
-          const isFullDayContinuation =
-            overnightContinuation.endTime === "23:59:00";
-
-          if (overnightSpan === 2 && !isFullDayContinuation) {
-            // Simple 2-day overnight with partial continuation: use "(Next day)" pattern
-            dayStrings.push(
-              `${formatTimeForFriendlyDisplay(period.startTime)} - ${formatTimeForFriendlyDisplay(overnightContinuation.endTime)} (Next day)`,
-            );
-          } else {
-            // Multi-day span OR full-day continuation: show exact schedule for each day
-            dayStrings.push(
-              `${formatTimeForFriendlyDisplay(period.startTime)} - ${formatTimeForFriendlyDisplay(period.endTime)}`,
-            );
-          }
-        } else {
-          dayStrings.push(
-            `${formatTimeForFriendlyDisplay(period.startTime)} - ${formatTimeForFriendlyDisplay(period.endTime)}`,
-          );
-        }
-      } else {
-        dayStrings.push(
-          `${formatTimeForFriendlyDisplay(period.startTime)} - ${formatTimeForFriendlyDisplay(period.endTime)}`,
-        );
-      }
+      dayStrings.push(
+        `${formatTimeForFriendlyDisplay(period.startTime)} - ${formatTimeForFriendlyDisplay(period.endTime)}`,
+      );
     });
 
     displayData[dayKey] =

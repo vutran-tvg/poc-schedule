@@ -33,7 +33,7 @@ export const TimeSettings = ({
       <div className="space-y-4">
         <div className="flex items-center space-x-2">
           <input
-            type="checkbox"
+            type="radio"
             id="useCurrentTime"
             checked={useCurrentTime}
             onChange={(e) => onToggleCurrentTime(e.target.checked)}
@@ -47,7 +47,7 @@ export const TimeSettings = ({
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <input
-              type="checkbox"
+              type="radio"
               id="useManualTime"
               checked={!useCurrentTime}
               onChange={(e) => onToggleCurrentTime(!e.target.checked)}

@@ -38,8 +38,8 @@ export const CurrentStatus = ({
         {nextEvent ? (
           <p className="text-md h-5">
             {nextEvent.type === "Open" && nextEvent.time === "24/7"
-              ? "Open 24/7"
-              : `${nextEvent.type} at ${formatTimeForFriendlyDisplay(nextEvent.time)} ${getRelativeDayName(currentTime, nextEvent.date)}`}
+              ? "Open 24 hours"
+              : `${nextEvent.type} ${formatTimeForFriendlyDisplay(nextEvent.time)} ${getRelativeDayName(currentTime, nextEvent.date)}`}
           </p>
         ) : (
           <p className="text-sm text-muted-foreground h-5">

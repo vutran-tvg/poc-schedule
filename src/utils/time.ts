@@ -23,10 +23,10 @@ export const getRelativeDayName = (currentDate: Date, eventDate: Date): string =
   const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) {
-    return "today";
+    return "";
   }
-  if (diffDays === 1) {
-    return "tomorrow";
-  }
-  return `on ${DAY_NAMES[DAY_ORDER[event.getDay()]]}`;
+  // if (diffDays === 1) {
+  //   return "tomorrow";
+  // }
+  return `${DAY_NAMES[DAY_ORDER[event.getDay()]]}`;
 }; 
